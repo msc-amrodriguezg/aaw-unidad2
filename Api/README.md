@@ -13,10 +13,100 @@ API RESTful construida con **ASP.NET Core (.NET 10)** que implementa un CRUD com
 | SQL Server (LocalDB) | Base de datos |
 | MediatR 12 | CQRS (comandos y consultas) |
 | Swashbuckle | Swagger UI / documentación |
+| HotChocolate 15 | GraphQL Server |
 
 ## Endpoints
 
 Base URL: `https://localhost:<puerto>/api`
+
+## GraphQL
+
+Endpoint: `https://localhost:<puerto>/graphql`
+
+IDE interactivo (Banana Cake Pop): `https://localhost:<puerto>/graphql` (solo en desarrollo).
+
+### Queries
+
+```graphql
+# Listar productos con filtrado, ordenamiento y paginación
+query {
+  productos {
+    id
+    nombre
+    descripcion
+    precio
+  }
+}
+
+# Obtener producto por ID
+query {
+  productoById(id: 1) {
+    id
+    nombre
+    descripcion
+    precio
+  }
+}
+```
+
+### Mutations
+
+```graphql
+# Crear producto
+mutation {
+  createProducto(input: {
+    nombre: "Nuevo Producto"
+    descripcion: "Descripción del producto"
+    precio: 99.99
+  }) {
+    id
+    nombre
+    precio
+  }
+}
+
+# Actualizar producto
+mutation {
+  updateProducto(input: {
+    id: 1
+    nombre: "Producto Actualizado"
+    descripcion: "Nueva descripción"
+    precio: 149.99
+  }) {
+    id
+    nombre
+    precio
+  }
+}
+
+# Eliminar producto
+mutation {
+  deleteProducto(input: { id: 1 })
+}
+```
+
+### Ejemplo con curl
+
+```bash
+# Query
+curl -X POST https://localhost:<puerto>/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ productos { id nombre descripcion precio } }"}'
+
+# Mutation
+curl -X POST https://localhost:<puerto>/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "mutation { createProducto(input: { nombre: \"Test\", descripcion: \"Desc\", precio: 100 }) { id nombre precio } }"}'
+```
+
+### Características GraphQL
+
+- **Filtrado**: `productos(where: { nombre: { contains: "Laptop" } })`
+- **Ordenamiento**: `productos(order: [{ precio: DESC }])`
+- **Proyección**: Solo solicita los campos que necesitas
+- **Paginación**: Soporta `first`, `last`, `after`, `before` (estilo Relay)
+
+## Endpoints REST
 
 | Método | Ruta | Descripción | Respuestas |
 |---|---|---|---|
@@ -66,6 +156,15 @@ Api/
 │       └── Queries/               # CQRS - lecturas
 │           ├── GetProductosQuery.cs
 │           └── GetProductoByIdQuery.cs
+├── GraphQL/
+│   ├── Types/
+│   │   └── ProductoType.cs        # Tipo GraphQL para Producto
+│   ├── Inputs/
+│   │   └── ProductoInputs.cs      # Input types para mutations
+│   ├── Queries/
+│   │   └── ProductoQuery.cs       # Queries GraphQL
+│   └── Mutations/
+│       └── ProductoMutation.cs    # Mutations GraphQL
 ├── Models/
 │   └── Producto.cs                # Entidad de dominio
 ├── Data/

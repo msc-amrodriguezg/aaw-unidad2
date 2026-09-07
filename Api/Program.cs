@@ -1,4 +1,7 @@
 using Api.Data;
+using Api.GraphQL.Mutations;
+using Api.GraphQL.Queries;
+using Api.GraphQL.Types;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +20,15 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Progr
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<ProductoQueryType>()
+    .AddMutationType<ProductoMutationType>()
+    .AddType<ProductoType>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,6 +44,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGraphQL();
 
 using (var scope = app.Services.CreateScope())
 {
